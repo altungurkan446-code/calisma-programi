@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Satış ve Stok Analizi: 8 Haftalık Çalışma Programı</title>
+<script>(function(){var t;try{t=localStorage.getItem("ep-theme")}catch(e){}if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",t)})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f5f1; --card:#ffffff; --ink:#1d1c1a; --muted:#6b6862; --line:#e4e1da;
+  --accent:#2f5d50; --accent-soft:#e3eee9;
+  --excel:#1e7a45; --python:#2b5fa8; --sql:#c0611d; --pbi:#b58900; --port:#6b4fa8; --flex:#8a8780;
+  --soft:#fbfaf7; --soft2:#f3f1ec; --codebg:#efede7; --track:#ebe8e1; --body2:#3a3833; --body3:#45423c; --hover:#cfcbc2;
+  --done-bg:#e8f3ec; --done-line:#b9dcc6;
+  --note-bg:#fff8e6; --note-line:#f0dfb0; --en-bg:#eef3fb; --en-line:#cfdcf0;
+  color-scheme:light;
+}
+[data-theme="dark"]{
+  --bg:#151513; --card:#1f1e1b; --ink:#ecebe6; --muted:#9d9a92; --line:#33312c;
+  --accent:#6fb59d; --accent-soft:#233a32;
+  --excel:#4cb877; --python:#6c9ce0; --sql:#e48a4a; --pbi:#d8b33a; --port:#a68ae0; --flex:#8f8c84;
+  --soft:#25241f; --soft2:#2a2924; --codebg:#2e2c27; --track:#2e2c27; --body2:#d6d4cd; --body3:#c5c2ba; --hover:#4a4740;
+  --done-bg:#1f3a2a; --done-line:#2f5c40;
+  --note-bg:#352d18; --note-line:#5a4b22; --en-bg:#1c2738; --en-line:#2d4060;
+  color-scheme:dark;
+}
+body,header,.week,.panel,.day,.tcard{transition:background-color .2s,border-color .2s,color .2s}
+.theme{width:36px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:16px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 Inter,system-ui,sans-serif}
+code{font-family:"JetBrains Mono",monospace;font-size:.86em;background:var(--codebg);padding:1px 5px;border-radius:4px}
+header{background:var(--card);border-bottom:1px solid var(--line);padding:18px 24px}
+.hwrap{max-width:1180px;margin:0 auto;display:flex;flex-wrap:wrap;gap:14px 28px;align-items:center;justify-content:space-between}
+h1{font-size:19px;margin:0;font-weight:700;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:13px;margin-top:2px}
+.prog{display:flex;align-items:center;gap:12px;min-width:260px}
+.bar{flex:1;height:8px;background:var(--track);border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.ptxt{font-size:13px;color:var(--muted);white-space:nowrap}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 13px;border-radius:8px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.btn:hover{border-color:var(--hover)}
+.btn.primary{background:var(--accent);color:var(--card);border-color:var(--accent)}
+main{max-width:1180px;margin:0 auto;padding:22px 24px 60px;display:grid;grid-template-columns:330px 1fr;gap:22px;align-items:start}
+@media (max-width:860px){main{grid-template-columns:1fr}}
+.side{position:sticky;top:14px}
+@media (max-width:860px){.side{position:static}}
+.week{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.wh{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.wt{font-weight:600;font-size:14px}
+.wd{font-size:12px;color:var(--muted)}
+.wtag{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:99px;color:#fff;margin-top:4px}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:10px}
+.day{border:1px solid var(--line);background:var(--soft);border-radius:7px;padding:5px 0 4px;text-align:center;cursor:pointer;font:inherit;color:var(--ink);position:relative}
+.day b{display:block;font-size:13px;font-weight:600}
+.day span{display:block;font-size:10px;color:var(--muted)}
+.day:hover{border-color:var(--hover)}
+.day.sel{outline:2px solid var(--accent);outline-offset:-1px;background:var(--accent-soft)}
+.day.done{background:var(--done-bg);border-color:var(--done-line)}
+.day.done::after{content:"✓";position:absolute;top:1px;right:4px;font-size:10px;color:var(--excel);font-weight:700}
+.day.today{box-shadow:inset 0 -3px 0 var(--accent)}
+.day.flex b{color:var(--flex)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:26px 30px}
+@media (max-width:600px){.panel{padding:20px 18px}}
+.kick{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.panel h2{font-size:24px;margin:4px 0 6px;letter-spacing:-.015em;line-height:1.25}
+.goal{font-size:16px;color:var(--body2);margin:0 0 16px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:18px}
+.tool{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:4px 10px;border-radius:99px;border:1px solid var(--line);background:var(--soft);color:var(--ink);cursor:pointer}
+.tool i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.sec{border-top:1px solid var(--line);padding-top:14px;margin-top:16px}
+.sec h3{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 8px;font-weight:600}
+.plan{display:flex;flex-wrap:wrap;gap:6px}
+.plan div{background:var(--soft2);border-radius:7px;padding:5px 10px;font-size:13px}
+.plan div b{font-weight:600;margin-right:5px}
+ol.tasks{margin:0;padding-left:0;list-style:none;counter-reset:t}
+ol.tasks li{counter-increment:t;position:relative;padding:8px 0 8px 36px;border-bottom:1px dashed var(--line)}
+ol.tasks li:last-child{border-bottom:0}
+ol.tasks li::before{content:counter(t);position:absolute;left:0;top:8px;width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+.note{background:var(--note-bg);border:1px solid var(--note-line);border-radius:10px;padding:10px 14px;font-size:14px}
+.en{background:var(--en-bg);border:1px solid var(--en-line);border-radius:10px;padding:10px 14px;font-size:14px}
+.foot{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-top:24px;border-top:1px solid var(--line);padding-top:16px}
+.check{display:flex;align-items:center;gap:8px;font-weight:600;cursor:pointer;user-select:none}
+.check input{width:18px;height:18px;accent-color:var(--accent)}
+.nav{display:flex;gap:8px}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tabs .btn.on{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:6px}
+.tcard{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--soft)}
+.tcard h4{margin:0 0 4px;font-size:15px;display:flex;align-items:center;gap:8px}
+.tcard h4 i{width:10px;height:10px;border-radius:50%}
+.tcard p{margin:4px 0;font-size:13.5px;color:var(--body3)}
+.tcard .lbl{font-weight:600;color:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--muted);margin:2px 0 12px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
+</style>
+</head>
+<body>
+<header>
+  <div class="hwrap">
+    <div>
+      <h1>Satış ve Stok Analizi Portföy Projesi</h1>
+      <div class="sub">8 hafta · günde 90 dakika · Excel → Python → SQL (MySQL) → Power BI</div>
+    </div>
+    <div class="prog">
+      <div class="bar"><i id="pbar"></i></div>
+      <div class="ptxt" id="ptxt"></div>
+      <button class="btn primary" id="todayBtn">Bugün</button>
+      <button class="btn theme" id="themeBtn" title="Karanlık / aydınlık mod" aria-label="Karanlık / aydınlık mod">🌙</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <aside class="side">
+    <div class="tabs">
+      <button class="btn on" id="tabPlan">Program</button>
+      <button class="btn" id="tabTools">Programlar</button>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--excel)"></i>Excel</span>
+      <span><i style="background:var(--python)"></i>Python</span>
+      <span><i style="background:var(--sql)"></i>SQL</span>
+      <span><i style="background:var(--pbi)"></i>Power BI</span>
+      <span><i style="background:var(--port)"></i>Portföy</span>
+    </div>
+    <div id="weeks"></div>
+  </aside>
+  <section class="panel" id="panel"></section>
+</main>
+
+<script>
+const START = new Date(2026, 10, 16); // 16 Kasım 2026, Pazartesi = Gün 1
+const DAYN = ["Pzt","Sal","Çar","Per","Cum","Cmt","Paz"];
+const MON = ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+
+const TOOLS = {
+  excel:  {name:"Excel", c:"var(--excel)", ne:"Veriyi tanıma, temizleme, PivotTable, ABC analizi ve ilk grafikler.", kur:"Microsoft 365 Excel (öğrenci hesabınla ücretsiz olabilir). XLOOKUP için 2021 veya 365 sürümü gerekir.", ipucu:"Veriyi Ctrl+T ile Tablo'ya çevir, formüller kendiliğinden aşağı uzar."},
+  vscode: {name:"VS Code", c:"var(--python)", ne:"Python kodlarını yazıp çalıştıracağın editör.", kur:"Python eklentisi (Microsoft) ve Jupyter eklentisini kur. .ipynb dosyalarıyla hücre hücre çalışabilirsin.", ipucu:"Terminali Ctrl+ö (Türkçe klavye) ya da View → Terminal ile açarsın."},
+  python: {name:"Python + Pandas", c:"var(--python)", ne:"Excel'de yaptığın analizi kodla tekrarlamak ve otomatikleştirmek.", kur:"Terminalde: pip install pandas numpy matplotlib openpyxl", ipucu:"Her yeni fonksiyonda önce df.head() ile sonuca bak; ezberleme, gözlemle."},
+  mysql:  {name:"MySQL Workbench", c:"var(--sql)", ne:"Veritabanı ve tabloları kurmak, SQL ile analiz yapmak. Sürümün 8.0.46: CTE ve window functions çalışır.", kur:"Kurulu. Veri aktarma: tabloya sağ tık → Table Data Import Wizard.", ipucu:"Sorguyu çalıştırmak için Ctrl+Enter (imlecin olduğu sorgu), Ctrl+Shift+Enter (hepsi)."},
+  pbi:    {name:"Power BI Desktop", c:"var(--pbi)", ne:"Model kurmak, DAX ölçüleri yazmak ve yönetici dashboard'u hazırlamak.", kur:"Microsoft Store'dan ücretsiz Power BI Desktop. MySQL'e bağlanmak için MySQL Connector/NET veya ODBC gerekebilir.", ipucu:"Hesaplama sütunu her satır için, ölçü (measure) toplam için. Çoğu zaman ölçü istersin."},
+  git:    {name:"Git + GitHub", c:"var(--port)", ne:"Projeyi portföy olarak yayınlamak ve sürüm takibi.", kur:"git-scm.com'dan Git for Windows, github.com'da hesap. VS Code'un Source Control paneli işini kolaylaştırır.", ipucu:"Her çalışma gününün sonunda küçük bir commit at: 'gün 18: merge ve hesaplama sütunları'."},
+  linkedin:{name:"LinkedIn", c:"var(--port)", ne:"Profil, proje vitrini ve mezunlara kısa mesajlar.", kur:"Hesabın açık. Fotoğraf, başlık, özet, deneyim (Grammer) ve beceriler eksiksiz olsun.", ipucu:"Başlık örneği: 'Endüstri Mühendisliği Öğrencisi | Veri Analizi · SQL · Python · Power BI'."},
+  not:    {name:"Not defteri", c:"var(--flex)", ne:"Bulguların, kararların ve öz değerlendirmen için. Kâğıt, Word ya da OneNote fark etmez.", kur:"Projeye bir 'calisma_gunlugu.md' dosyası açmak da iyi bir seçenek.", ipucu:"Her kararın yanına 'neden' yaz. Mülakatta sorulan tam olarak budur."}
+};
+
+const STAGE = {excel:["Excel","var(--excel)"], python:["Python","var(--python)"], sql:["SQL","var(--sql)"], pbi:["Power BI","var(--pbi)"], port:["Portföy","var(--port)"], flex:["Esnek","var(--flex)"]};
+
+const FLEX = (extra)=>({flex:true, t:"Esnek gün: tekrar ve dinlenme", g:"Haftanın eksiklerini kapat, yorulduysan dinlen.", tools:["not"], plan:[["30 dk","Takıldığın görevi tekrar çöz"],["30 dk",extra[0]],["15 dk","Haftalık öz değerlendirme"]], konu:"Esnek gün, programın kaymasını önleyen tamponun. Bir gün kaçırdıysan onu bugün telafi edersin, ayrıca ekstra süre eklemezsin.", tasks:extra.slice(1), teslim:"Haftalık öz değerlendirme: Bu hafta ne öğrendim? Neyi hâlâ açıklayamıyorum?"});
+
+const WEEKS = [
+ {title:"Hafta 1", stage:"excel", konu:"Excel: tanıma, temizlik, hesaplama, Pivot, ABC", days:[
+  {t:"Veriyi tanıma", g:"Dört dosyayı Excel'e alıp yapısını anlamak ve veri kalitesi sorunlarını kendin bulmak.", tools:["excel","not"],
+   plan:[["0-10","Konuyu oku"],["10-25","Dosyaları aç, satır ve sütun say"],["25-70","Görevler"],["70-80","İngilizce"],["80-90","Öz değerlendirme"]],
+   konu:"`sales` bir olay tablosu: her satır bir satış kalemi. `products` ve `customers` ise tanım tabloları. Aralarındaki bağ `product_id` ve `customer_id`. Analizden önce sorulacak ilk soru: \"Bu veriye ne kadar güvenebilirim?\"",
+   araclar:"Durum çubuğu (Sayı, Toplam), Filtre, `COUNTBLANK`, `COUNTIF`, Koşullu Biçimlendirme → Yinelenen Değerler.",
+   tasks:["`satis_stok_veri_seti.zip` dosyasını aç, dört CSV'yi Excel'de aç. Her dosyanın satır sayısını ve sütun adlarını not defterine yaz.","`sales` içinde `quantity` sütununda kaç boş ve kaç negatif değer var? Hangi yöntemle bulduğunu da yaz.","`order_date` sütununda tutarsız tarih formatı var mı? Kaç satır etkileniyor, nasıl saydın?","`sales` içinde birebir aynı (tekrar eden) satır var mı? Yaklaşık kaç tane?"],
+   senaryo:"Müdürün \"geçen yıl cirom neydi?\" diye soruyor. Veriyi temizlemeden toplam alsan sonuç neden yanlış olurdu? 2-3 cümleyle yaz.",
+   en:"Kelimeler: duplicate, missing value, format, dataset. Tamamla: \"I found ___ missing values and ___ duplicate rows in the sales data.\"",
+   teslim:"4 görevin cevabı, senaryo yorumu ve İngilizce cümle. Bunları Claude'a yaz, birlikte kontrol edelim."},
+  {t:"Temizlik", g:"`sales` verisini temizlemek ve her kararı bir temizlik defterine yazmak.", tools:["excel","not"],
+   plan:[["0-10","Konu"],["10-20","Yedek sayfaları oluştur"],["20-70","Görevler"],["70-80","İngilizce"],["80-90","Öz değerlendirme"]],
+   konu:"Temizlikte üç seçenek var: silmek, düzeltmek ya da işaretleyip bırakmak. Doğru seçim sorunun nedenine bağlı. Negatif adet bir iade olabilir mi, yoksa hata mı? Bu bir kod sorusu değil, bir iş sorusu. Kural: ham veriye dokunma, kopyada çalış.",
+   araclar:"Veri → Yinelenenleri Kaldır, Filtre, `TRIM`, `PROPER`, Metni Sütunlara Dönüştür, `DATEVALUE`.",
+   tasks:["`sales` sayfasını iki kez kopyala: `sales_ham` (dokunma) ve `sales_temiz` (çalışma).","Tekrar eden satırları kaldır. \"Tekrar\" tanımını sen belirle: tüm sütunlar mı aynı olmalı, yoksa sipariş + ürün yeter mi? Gerekçeni yaz. Kaç satır gitti?","Boş ve negatif `quantity` satırları için bir karar ver ve uygula. Gerekçeni yaz.","`order_date` sütununu tek formata getir. Kontrol: en küçük ve en büyük tarih 2025 içinde mi?","Boş `customer_id` satırları için karar ver: sil mi, \"Bilinmiyor\" mu?","`customers` sayfasında şehir yazımlarını düzelt. Kaç farklı şehir olmalı, kaç tane buldun?"],
+   senaryo:"İade satırlarını silmek ciroyu artırır mı azaltır mı? Müdürüne bu kararı nasıl açıklarsın?",
+   en:"Kelimeler: clean, remove, standardize, assumption. Tamamla: \"I removed ___ rows because ___.\"",
+   teslim:"Temiz sayfa + temizlik defteri (sorun · kaç satır · ne yaptım · neden) + satır sayısı önce/sonra."},
+  {t:"Hesaplama sütunları", g:"Ciro, maliyet ve brüt kâr sütunlarını üretip projenin referans rakamlarını bulmak.", tools:["excel"],
+   plan:[["0-15","Konu ve örnek"],["15-70","Görevler"],["70-80","İngilizce"],["80-90","Öz değerlendirme"]],
+   konu:"`sales` içinde maliyet yok, `products` içinde var. İki tabloyu Excel'de birleştirmenin yolu `XLOOKUP(aranan; aranan_aralık; dönen_aralık)`. Örnek: `product_id`'ye göre ürün adını getirmek. Önce verini Ctrl+T ile Tabloya çevir.",
+   araclar:"`XLOOKUP` (yoksa `VLOOKUP`), Tablo (Ctrl+T), `SUM`, `ROUND`.",
+   tasks:["`sales_temiz`'e ürün adını ve kategoriyi `products`'tan getir.","Net ciro sütunu: adet × birim fiyat × (1 − indirim).","Birim maliyeti getir, toplam maliyet sütununu üret.","Brüt kâr = net ciro − toplam maliyet. Kâr marjı (%) sütununu ekle.","Üç toplamı bul: yıllık net ciro, yıllık brüt kâr, genel kâr marjı."],
+   not:"Bu üç rakam projenin referans değerleri. Pandas'ta, SQL'de ve Power BI'da aynı rakamları bulmalısın. Bir yere not et.",
+   senaryo:"Yüksek indirimli satışlar kârı ne kadar eritiyor? Hangi indirim düzeyinde kâr marjı en düşük?",
+   en:"Kelimeler: revenue, cost, gross profit, margin, discount. Tamamla: \"The gross profit margin was ___ percent.\"",
+   teslim:"Üç referans rakam + sütunların nasıl hesaplandığına dair kısa not."},
+  {t:"PivotTable", g:"Hesaplanmış veriyi PivotTable ile özetleyip her özeti yorumlamak.", tools:["excel"],
+   plan:[["0-15","Konu ve örnek"],["15-70","Görevler"],["70-80","İngilizce"],["80-90","Öz değerlendirme"]],
+   konu:"PivotTable, ileride Pandas'ta `groupby`, SQL'de `GROUP BY` ile yapacağın işin Excel karşılığı. Satırlar'a grupladığın alanı, Değerler'e topladığın alanı koyarsın. Tarih alanını Aylar'a gruplayabilirsin. Veri değişirse Yenile gerekir.",
+   araclar:"Ekle → PivotTable, Gruplandır (Aylar), Değer Alanı Ayarları, Sırala.",
+   tasks:["Ürün bazında net ciro, en çoktan en aza sıralı.","Kategori bazında net ciro ve brüt kâr.","Ay bazında net ciro.","Kategori × ay matrisi: satırda kategori, sütunda ay.","Her PivotTable için tek cümlelik yorum yaz.","Kontrol: Pivot toplamları Gün 3'teki referans rakamlarla aynı mı? Değilse nedenini bul."],
+   senaryo:"Hangi kategori mevsimsel? Depo neden yılın belli aylarında o kategoriye daha çok yer ayırmalı?",
+   en:"Kelimeler: pivot table, total, breakdown, trend, peak. Tamamla: \"Sales peaked in ___ because ___.\"",
+   teslim:"4 PivotTable (ayrı sayfalarda) + her biri için 1 cümle yorum + kontrol sonucu."},
+  {t:"ABC analizi", g:"Ürünleri ciro katkılarına göre A, B, C sınıflarına ayırmak.", tools:["excel"],
+   plan:[["0-20","Konu ve örnek"],["20-70","Görevler"],["70-80","İngilizce"],["80-90","Öz değerlendirme"]],
+   konu:"Pareto fikri: az sayıda ürün, cironun büyük kısmını getirir. Yaygın eşikler: ilk %80 ciro A, sonraki %15 B, son %5 C. Yöntem: ürünleri cirosuna göre büyükten küçüğe diz, her ürünün payını hesapla, payları kümülatif topla, eşiğe göre sınıf ver.",
+   araclar:"Gün 4'teki ürün Pivot'u (Değerleri Yapıştır ile sabitle), `SUM`, mutlak başvuru (`$`), `IF`.",
+   tasks:["Ürün bazında net ciro tablosunu büyükten küçüğe sırala.","Pay (%) ve kümülatif pay (%) sütunlarını ekle.","Kümülatif paya göre A / B / C sınıfını atayan bir `IF` formülü yaz.","Her sınıfta kaç ürün var, ciro payı ne? A sınıfı, ürün sayısının yüzde kaçı?"],
+   senaryo:"Depo müdürü hangi ürünlerin stoğunu günlük, hangilerini aylık takip etmeli? ABC sonucuyla cevapla.",
+   en:"Kelimeler: Pareto, cumulative, priority, class. Tamamla: \"Class A products represent ___ percent of products but ___ percent of revenue.\"",
+   teslim:"ABC tablosu, 4. görevin cevabı ve senaryo yorumu."},
+  {t:"Grafikler ve mini rapor", g:"İki doğru grafik üretip \"bu yıl ne oldu?\" sorusunu yanıtlayan kısa bir rapor yazmak.", tools:["excel","not"],
+   plan:[["0-15","Konu"],["15-60","Grafikler"],["60-75","Rapor"],["75-90","İngilizce ve öz değerlendirme"]],
+   konu:"Grafik tipi sorudan gelir: zaman içinde değişim için çizgi, karşılaştırma için çubuk, ABC için Pareto (çubuk + kümülatif çizgi). Başlık bulgunun kendisini söylesin: \"Ciro\" yerine \"İçecek satışı yazın iki katına çıkıyor\".",
+   araclar:"Ekle → Grafik, Birleşik grafik (ikincil eksen), Grafik Öğeleri (eksen başlıkları, etiketler).",
+   tasks:["Aylık net ciro için çizgi grafiği.","ABC için Pareto grafiği: çubuk (ciro) + çizgi (kümülatif %).","Her grafiğe bulguyu söyleyen bir başlık, eksen başlıkları ve okunur etiketler ekle.","Mini rapor (8-10 cümle): 3 bulgu + 1 öneri. Bir yönetici bunu 2 dakikada okuyacak."],
+   senaryo:"Yönetici \"bu yıl ne oldu, ne yapmalıyız?\" diye soruyor. Rakamlarını savunabilmelisin.",
+   en:"Tamamla: \"Sales peaked in ___. Category ___ generated the highest profit. I recommend ___.\"",
+   teslim:"2 grafik + mini rapor + haftalık öz değerlendirme."},
+  FLEX(["LinkedIn profilini tamamla","5 soruyu kendine sor: Pivot ile `SUMIFS` farkı ne?","Neden ham veriyi saklıyoruz?","ABC eşiklerini ne belirler?","Referans rakamlarım ne?"])
+ ]},
+ {title:"Hafta 2", stage:"excel", konu:"Excel'i bitirme, Pandas'a giriş", days:[
+  {t:"ABC + stok birleştirme", g:"ABC tablosuna stok bilgisini ekleyip stok gün sayısını hesaplamak.", tools:["excel"],
+   plan:[["0-15","Konu"],["15-75","Görevler"],["75-90","İngilizce ve öz değerlendirme"]],
+   konu:"Stok gün sayısı (days of supply) = eldeki stok ÷ ortalama günlük satış. \"Bu stok kaç gün yeter?\" sorusunun cevabı. Ortalama günlük satış = yıllık adet ÷ 365.",
+   tasks:["ABC tablosuna ürün bazında yıllık satış adedini ekle.","`inventory`'den eldeki stoğu `XLOOKUP` ile getir.","Ortalama günlük satış ve stok gün sayısı sütunlarını ekle.","Stoğu en az kaç gün yeten 5 ürünü listele. Bunlar hangi ABC sınıfında?"],
+   senaryo:"Stoğu 3 gün yeten bir C ürünü ile 3 gün yeten bir A ürünü aynı derecede acil mi? Neden?",
+   en:"Kelimeler: inventory, stock on hand, days of supply, shortage.",
+   teslim:"Stok gün sayılı ABC tablosu + 5 ürün listesi + senaryo yorumu."},
+  {t:"Stok risk analizi", g:"Tedarik süresine göre stok tükenme riski taşıyan ürünleri işaretlemek.", tools:["excel"],
+   plan:[["0-15","Konu"],["15-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"Bir ürünün stoğu, yeni sipariş gelene kadar yetmiyorsa risk vardır. Basit kural: stok gün sayısı < tedarik süresi (`lead_time_days`) ise risk. `products` içinde bazı tedarik süreleri boş, bunlar için bir varsayım yapman gerekecek.",
+   tasks:["Tedarik süresini getir. Boş olanlar için bir karar ver (ortalama mı, kategori ortalaması mı?) ve yaz.","\"Risk\" sütunu: `IF` ile Riskli / Güvenli.","Koşullu biçimlendirme ile riskli A ürünlerini kırmızı yap.","Riskli ürün sayısı sınıflara göre nasıl dağılıyor?"],
+   senaryo:"Satın alma müdürü yarın sabah hangi 3 ürünü sipariş etmeli? Gerekçesiyle yaz.",
+   en:"Kelimeler: lead time, risk, reorder, supplier. Tamamla: \"___ products are at risk of stockout.\"",
+   teslim:"Risk tablosu + 3 ürünlük sipariş önerisi."},
+  {t:"Kârlılık açısından ABC", g:"Ciro sıralaması ile kâr sıralamasını karşılaştırmak.", tools:["excel"],
+   plan:[["0-15","Konu"],["15-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"Çok satan her ürün çok kazandırmaz. Ciroya göre A olan bir ürünün marjı düşükse, kâr sıralamasında geriye düşer. Endüstri mühendisi iki sıralamaya birlikte bakar.",
+   tasks:["Ürün bazında brüt kâr ile ikinci bir ABC sınıflaması yap.","İki sınıfı yan yana koy. Sınıfı değişen ürünleri bul.","Kategori bazında kâr marjını karşılaştır.","İndirim oranına göre ortalama marjı hesapla (Pivot)."],
+   senaryo:"Pazarlama, ciroyu artırmak için %15 indirim kampanyası öneriyor. Verine göre bu kâra ne yapar?",
+   teslim:"İki sınıflama karşılaştırması + kampanya yorumu."},
+  {t:"Excel yönetim özeti", g:"Excel aşamasını tek sayfalık bir yönetim özetiyle bitirmek.", tools:["excel","not"],
+   plan:[["0-10","Plan"],["10-70","Özet sayfası"],["70-90","Metin ve kontrol"]],
+   konu:"Yönetici özeti: üstte 3-4 KPI kutusu (ciro, brüt kâr, marj, riskli ürün sayısı), altında 2 grafik, yanında 3 bulgu ve 2 öneri. Tek ekrana sığmalı.",
+   tasks:["Yeni bir \"Özet\" sayfası aç. KPI hücrelerini diğer sayfalara formülle bağla.","Aylık ciro ve Pareto grafiklerini buraya taşı.","3 bulgu ve 2 öneri yaz.","Dosyayı `satis_stok_analizi.xlsx` olarak kaydet. Excel aşaması tamam."],
+   senaryo:"Bu sayfayı kimseyle konuşmadan bir yöneticiye e-postayla atsan anlar mı? Bir arkadaşına göster.",
+   en:"Bulgularından birini İngilizce 2 cümleyle yaz.",
+   teslim:"Bitmiş Excel dosyası."},
+  {t:"Pandas'a giriş", g:"Python ortamını kurup veriyi Pandas ile okumak.", tools:["vscode","python"],
+   plan:[["0-20","Kurulum ve klasör yapısı"],["20-35","Konu"],["35-80","Görevler"],["80-90","Öz değerlendirme"]],
+   konu:"Pandas'ta tablo = DataFrame, sütun = Series. Excel'de gözle yaptığını burada fonksiyonla yaparsın: `pd.read_csv()`, `df.head()`, `df.shape`, `df.info()`, `df.describe()`, `df.dtypes`.",
+   araclar:"Klasör yapısı: `satis-stok-analizi/` altında `data/raw`, `data/clean`, `notebooks`, `reports`. Ham CSV'leri `data/raw`'a koy.",
+   tasks:["Terminalde `pip install pandas numpy matplotlib openpyxl` çalıştır.","`notebooks/01_kesif.ipynb` aç, dört CSV'yi oku.","Gün 1, Görev 1'i Pandas ile tekrarla: her tablonun satır, sütun ve veri tipleri.","`df.info()` çıktısında `quantity` neden float görünüyor? Açıkla."],
+   senaryo:"Excel'de 20 dakika süren keşif burada kaç satır kod tuttu? Bu farkın iş hayatındaki anlamı ne?",
+   en:"Kelimeler: DataFrame, column, row, data type.",
+   teslim:"Çalışan notebook + 4. görevin cevabı."},
+  {t:"Seçme ve filtreleme", g:"Pandas'ta sütun seçme, satır filtreleme ve sayma.", tools:["vscode","python"],
+   plan:[["0-15","Konu ve örnek"],["15-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"Sütun: `df['quantity']`, birden çok: `df[['a','b']]`. Filtre: `df[df['quantity'] < 0]`. Sayma: `.isna().sum()`, `.value_counts()`. Koşulları `&` ve `|` ile birleştirirsin, her koşulu paranteze al.",
+   tasks:["`quantity` sütununda boş ve negatif değer sayısını bul. Excel'deki sonuçla aynı mı?","Tekrar eden satır sayısını `df.duplicated().sum()` ile bul.","İndirimi 0.15 olan ve adedi 20'den büyük satırları filtrele.","`customers['city'].value_counts()` çıktısında tutarsız yazımları göster."],
+   senaryo:"Excel ile Pandas sayıları farklı çıkarsa hangisine güvenirsin, nasıl karar verirsin?",
+   teslim:"Notebook + Excel karşılaştırması."},
+  FLEX(["Pandas'ta takıldığın yeri tekrar et","CV'de Grammer stajını somut maddelerle yaz"])
+ ]},
+ {title:"Hafta 3", stage:"python", konu:"Pandas: temizlik, birleştirme, groupby", days:[
+  {t:"Tekrarları temizleme", g:"Excel'deki tekrar kararını kodla uygulamak.", tools:["vscode","python"],
+   plan:[["0-15","Konu"],["15-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"`df.duplicated(subset=[...])` hangi satırların tekrar olduğunu söyler, `df.drop_duplicates()` siler. `subset` vermezsen tüm sütunlara bakar. Ham veriyi koru: `temiz = ham.copy()`.",
+   tasks:["Ham veriyi kopyala, temizliği kopyada yap.","Excel'de kullandığın tekrar tanımıyla aynı `subset`'i kur, tekrarları sil.","Silinen satır sayısını yazdır. Excel ile aynı mı?","Her adımdan sonra `print(len(df))` ile satır sayısını izle."],
+   teslim:"Tekrarları temizlenmiş DataFrame + satır sayısı karşılaştırması."},
+  {t:"Eksik ve negatif değerler", g:"Boş ve hatalı değerler için verdiğin kararları kodlamak.", tools:["vscode","python"],
+   plan:[["0-15","Konu"],["15-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"`dropna(subset=[...])` boş satırları siler, `fillna(değer)` doldurur. Negatifleri filtreyle ayırırsın. Hangisini seçeceğin yine iş kararı, kod sadece uygular.",
+   tasks:["Boş `quantity` satırlarını Excel'deki kararına göre işle.","Negatif adetleri işle. İade kabul ettiysen ayrı bir DataFrame'e al.","Boş `customer_id`'leri \"BILINMIYOR\" ile doldur ya da sil.","`products` içindeki boş `lead_time_days` için Hafta 2'deki varsayımı uygula."],
+   senaryo:"Kodun bir yıl sonra yeni veride çalışacak. Kararlarını kodun içinde nasıl belgelersin?",
+   en:"Kodunun üstüne İngilizce bir yorum satırı yaz: `# Remove rows where ...`",
+   teslim:"Temizlik adımları + her adımın yorum satırı."},
+  {t:"Tarih ve metin temizliği", g:"İki farklı tarih formatını ve şehir yazımlarını düzeltmek.", tools:["vscode","python"],
+   plan:[["0-20","Konu"],["20-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"`pd.to_datetime()` metni tarihe çevirir. İki format varsa her birini ayrı `format=` ile çevirip birleştirmek en güvenlisi. Metin: `.str.strip()`, `.str.title()`, `.str.lower()`. Tarihten ay: `df['order_date'].dt.month`.",
+   tasks:["Tarih sütununda kaç farklı format olduğunu bul (ipucu: metinde `.` mı `-` mi var?).","Her formatı ayrı çevir, tek sütunda birleştir. Boş kalan tarih var mı kontrol et.","`month` sütunu ekle.","Şehir adlarını standartlaştır, `value_counts()` ile kontrol et."],
+   teslim:"Tarih ve metin temizliği tamamlanmış veri."},
+  {t:"Birleştirme ve hesaplama", g:"Tabloları `merge` ile birleştirip ciro ve kâr sütunlarını üretmek.", tools:["vscode","python"],
+   plan:[["0-15","Konu"],["15-75","Görevler"],["75-90","Altın kural kontrolü"]],
+   konu:"`pd.merge(sales, products, on='product_id', how='left')` Excel'deki XLOOKUP'ın karşılığı ve SQL'deki JOIN'in ön izlemesi. `how='left'`: sol tablonun tüm satırları kalır.",
+   tasks:["`sales` ile `products`'ı birleştir. Birleşmeden önce ve sonra satır sayısı aynı mı?","`customers`'ı da ekle.","Net ciro, toplam maliyet, brüt kâr ve marj sütunlarını üret.","Üç referans rakamı hesapla ve Excel'dekilerle karşılaştır."],
+   not:"Altın kural: rakamlar Excel ile aynı çıkmalı. Kuruşu kuruşuna değilse farkın nereden geldiğini bulmadan Gün 19'a geçme.",
+   teslim:"Referans rakamların Excel ile karşılaştırması."},
+  {t:"Groupby ve aggregation", g:"Excel PivotTable'larını Pandas ile tekrarlamak.", tools:["vscode","python"],
+   plan:[["0-15","Konu ve örnek"],["15-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"`df.groupby('category')['net_ciro'].sum()` = Pivot'ta Satırlar: kategori, Değerler: ciro toplamı. Birden çok hesap: `.agg(ciro=('net_ciro','sum'), adet=('quantity','sum'))`. Matris için `pd.pivot_table()`.",
+   tasks:["Ürün bazında ciro, büyükten küçüğe (`sort_values`).","Kategori bazında ciro ve brüt kâr (`agg`).","Ay bazında ciro.","Kategori × ay matrisi (`pivot_table`). Excel'deki ile aynı mı?"],
+   senaryo:"Bu kodu her ay yeni veriyle çalıştırabilirsin. Excel'e göre avantajı ve dezavantajı ne?",
+   en:"Kelimeler: aggregate, group, sort, summary.",
+   teslim:"4 özet tablo + Excel karşılaştırması."},
+  {t:"Kodu düzenleme", g:"Notebook'taki temizliği tekrar kullanılabilir bir script'e çevirmek.", tools:["vscode","python"],
+   plan:[["0-15","Konu"],["15-70","Görevler"],["70-90","Kendi kodunu anlatma"]],
+   konu:"Notebook keşif içindir, tekrar eden iş script'e taşınır. Her adımı bir fonksiyona koy: `temizle_tarih(df)`, `hesapla_ciro(df)`. Sonucu `to_csv('data/clean/sales_clean.csv', index=False)` ile kaydet.",
+   tasks:["`scripts/temizle.py` oluştur, temizlik adımlarını fonksiyonlara böl.","Script çalışınca `data/clean/` altına temiz CSV'leri yazsın.","Bir `main()` fonksiyonu ile adımları sırayla çağır.","Kodunu satır satır sesli anlat ya da yazarak açıkla."],
+   not:"Kodu çalıştırmak öğrendiğin anlamına gelmez. Açıklayamadığın satırı Claude'a sor.",
+   teslim:"Çalışan `temizle.py` + temiz CSV'ler."},
+  FLEX(["Hafta 3 kodunu baştan, bakmadan yazmayı dene","Bir mezuna LinkedIn'den kısa mesaj at"])
+ ]},
+ {title:"Hafta 4", stage:"python", konu:"Pandas: ABC, grafikler, GitHub · Kontrol noktası 1", days:[
+  {t:"ABC analizi (Pandas)", g:"ABC sınıflamasını kodla yapmak.", tools:["vscode","python"],
+   plan:[["0-15","Konu"],["15-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"Adımlar Excel'dekiyle aynı: sırala, pay, kümülatif pay (`cumsum()`), sınıf. Sınıf için `np.where` iç içe ya da `pd.cut(bins=[0,0.8,0.95,1])` kullanabilirsin.",
+   tasks:["Ürün cirosunu sırala, pay ve kümülatif pay sütunlarını ekle.","A/B/C sınıfını ata.","Excel'deki sınıflarla karşılaştır: farklı olan ürün var mı?","Stok gün sayısı ve risk sütunlarını da ekle."],
+   teslim:"ABC + stok risk DataFrame'i."},
+  {t:"Grafikler (Matplotlib)", g:"Temel grafikleri kodla çizmek.", tools:["vscode","python"],
+   plan:[["0-15","Konu"],["15-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"`import matplotlib.pyplot as plt`. Çizgi: `plt.plot(x, y)`, çubuk: `plt.bar()` ya da yatay `plt.barh()`. Başlık, eksen adı: `plt.title()`, `plt.xlabel()`. Excel'deki kural aynı: başlık bulguyu söylesin.",
+   tasks:["Aylık ciro çizgi grafiği.","Kategori bazında brüt kâr çubuk grafiği.","En çok ciro yapan 10 ürün, yatay çubuk.","Her grafiğe bulgu cümlesi olan bir başlık ver."],
+   teslim:"3 grafik."},
+  {t:"Pareto grafiği ve kaydetme", g:"İkincil eksenli Pareto grafiği çizip grafikleri dosyaya kaydetmek.", tools:["vscode","python"],
+   plan:[["0-20","Konu"],["20-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"İki eksen için `fig, ax1 = plt.subplots()` ve `ax2 = ax1.twinx()`. Çubuk ax1'e, kümülatif çizgi ax2'ye. Kaydetme: `plt.savefig('reports/figures/pareto.png', dpi=150, bbox_inches='tight')`.",
+   tasks:["Pareto grafiğini çiz: çubuk ciro, çizgi kümülatif %.","%80 seviyesine yatay bir referans çizgisi ekle (`axhline`).","Tüm grafikleri `reports/figures/` altına PNG olarak kaydet.","Grafik kodlarını `scripts/grafikler.py`'ye taşı."],
+   teslim:"PNG dosyaları + script."},
+  {t:"Excel çıktısı", g:"Analiz sonuçlarını çok sayfalı bir Excel raporuna yazmak.", tools:["vscode","python","excel"],
+   plan:[["0-15","Konu"],["15-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"`with pd.ExcelWriter('reports/rapor.xlsx') as w:` içinde her tabloyu `df.to_excel(w, sheet_name='ABC', index=False)` ile ayrı sayfaya yazarsın. Şirketlerde \"her ay raporu otomatik üret\" işi tam olarak budur.",
+   tasks:["Özet, ABC, Stok Risk ve Kategori sayfalarını içeren `rapor.xlsx` üret.","Özet sayfasına üç referans rakamı yaz.","Dosyayı Excel'de aç, kontrol et.","Script'i tek komutla çalışır hale getir: `python scripts/rapor.py`."],
+   senaryo:"Ham veri her ay değişirse bu rapor kaç dakikada güncellenir? Excel'de elle kaç dakika sürerdi?",
+   teslim:"Otomatik üretilen Excel raporu."},
+  {t:"Git ve GitHub", g:"Projeyi GitHub'a yüklemek.", tools:["git","vscode"],
+   plan:[["0-20","Kurulum"],["20-35","Konu"],["35-80","Görevler"],["80-90","Öz değerlendirme"]],
+   konu:"Git dosyaların sürüm geçmişini tutar, GitHub bunu internette yayınlar. Temel döngü: `git add .` → `git commit -m \"mesaj\"` → `git push`. `.gitignore` paylaşılmayacak dosyaları dışarıda tutar.",
+   tasks:["Git for Windows kur, GitHub hesabı aç (profil fotoğrafı ve kısa bio ekle).","Proje klasöründe `git init`, `.gitignore` oluştur (`__pycache__/`, `.ipynb_checkpoints/`).","GitHub'da `satis-stok-analizi` reposu oluştur, ilk commit ve push.","VS Code'un Source Control panelinden ikinci bir commit at."],
+   en:"Commit mesajlarını İngilizce yaz: \"Add data cleaning script\".",
+   teslim:"GitHub repo linki."},
+  {t:"README · Kontrol noktası 1", g:"Projenin ilk yarısını anlatan README'yi yazıp portföye eklemek.", tools:["git","linkedin","not"],
+   plan:[["0-10","Örnek README'lere bak"],["10-65","README yaz"],["65-90","Kontrol ve paylaşım"]],
+   konu:"İyi bir README: Problem (1 paragraf) · Veri · Yöntem (Excel → Pandas) · Bulgular (3 madde, rakamlı) · Grafikler · Nasıl çalıştırılır · Sonraki adımlar (SQL, Power BI). İşe alımcı koddan önce bunu okur.",
+   tasks:["`README.md` yaz, Pareto ve aylık ciro grafiklerini ekle.","Bulguları rakamlı yaz.","\"Devam ediyor: SQL ve Power BI\" bölümü ekle.","GitHub linkini LinkedIn profiline ve CV'ye ekle."],
+   not:"Kontrol noktası 1: Excel ve Pandas aynı rakamları veriyor mu? GitHub'da düzgün duruyor mu? İkisi de evetse ilk portföy çıktın hazır.",
+   en:"README'nin kısa bir İngilizce özetini (3 cümle) en üste ekle.",
+   teslim:"Yayında README + LinkedIn ve CV'de link."},
+  FLEX(["Kontrol noktası 1 öz değerlendirmesi","Staj ilanlarını tara, 2-3 tanesine başvur"])
+ ]},
+ {title:"Hafta 5", stage:"sql", konu:"SQL temelleri (MySQL Workbench)", days:[
+  {t:"Veritabanı ve tablolar", g:"MySQL'de şemayı ve dört tabloyu kurmak.", tools:["mysql"],
+   plan:[["0-20","Konu"],["20-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"Önce `CREATE DATABASE satis_stok;` ve `USE satis_stok;`. Tabloları `CREATE TABLE` ile, veri tipleriyle kurarsın: `VARCHAR(50)`, `INT`, `DECIMAL(10,2)`, `DATE`. `PRIMARY KEY` her satırın kimliği, `FOREIGN KEY` tablolar arası bağ.",
+   tasks:["`satis_stok` veritabanını oluştur.","`products` ve `customers` tablolarını uygun tiplerle oluştur, birincil anahtar ekle.","`sales` tablosunu oluştur. `product_id` ve `customer_id` için hangi anahtar türü?","`inventory` tablosunu oluştur. Kodu `sql/00_tablolar.sql` olarak kaydet."],
+   senaryo:"Fiyatı neden `FLOAT` değil `DECIMAL` tutuyoruz? Bir muhasebeci bunu neden önemser?",
+   en:"Kelimeler: database, table, primary key, foreign key, schema.",
+   teslim:"`00_tablolar.sql` dosyası."},
+  {t:"Veri aktarma", g:"Temiz CSV'leri tablolara yükleyip satır sayılarını doğrulamak.", tools:["mysql"],
+   plan:[["0-15","Konu"],["15-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"Workbench'te tabloya sağ tık → Table Data Import Wizard → CSV seç → sütunları eşle. MySQL tarih için `YYYY-MM-DD` bekler, Pandas'taki temiz çıktın bu formatta olmalı. Hata çıkarsa ilk bakılacak yer tarih ve ondalık ayırıcı.",
+   tasks:["Önce `products` ve `customers`'ı yükle (neden bu sıra?).","`sales` ve `inventory`'yi yükle.","Her tablo için `SELECT COUNT(*) FROM ...;` çalıştır, Pandas'taki satır sayısıyla karşılaştır.","`SELECT * FROM sales LIMIT 10;` ile ilk satırlara bak."],
+   teslim:"4 tablonun satır sayısı karşılaştırması."},
+  {t:"SELECT, WHERE, ORDER BY", g:"Temel sorguları kendi başına yazmak.", tools:["mysql"],
+   plan:[["0-15","Konu ve örnek"],["15-75","10 soru"],["75-90","Öz değerlendirme"]],
+   konu:"`SELECT sütunlar FROM tablo WHERE koşul ORDER BY sütun DESC LIMIT n;` Koşullarda `AND`, `OR`, `IN (...)`, `BETWEEN a AND b`, `LIKE 'Su%'`. Tekil değerler: `DISTINCT`.",
+   tasks:["Fiyatı 100 TL'den yüksek ürünler, pahalıdan ucuza.","\"Icecek\" kategorisindeki ürünler.","Kocaeli ve Bursa'daki müşteriler (`IN`).","Mart 2025'teki satışlar (`BETWEEN`).","Adı \"Su\" ile başlayan ürünler (`LIKE`).","Kaç farklı şehir var (`DISTINCT`)?","İndirimi 0.15 olan satışlardan ilk 20'si.","Tedarik süresi 10 günden uzun ürünler.","Zincir Market segmentindeki müşteriler.","Kendi sorun: iş açısından anlamlı bir soru yaz ve cevapla."],
+   en:"Her sorgunun üstüne İngilizce yorum: `-- Products priced above 100 TL`",
+   teslim:"`sql/01_temel.sql`"},
+  {t:"Aggregate ve GROUP BY", g:"SQL ile toplam ve özet hesaplamak.", tools:["mysql"],
+   plan:[["0-15","Konu"],["15-75","Görevler"],["75-90","Altın kural kontrolü"]],
+   konu:"`COUNT`, `SUM`, `AVG`, `MIN`, `MAX`. `GROUP BY` ile gruplara ayırırsın. Hesap sorgu içinde yapılabilir: `SUM(quantity * unit_price * (1 - discount))`. Ürün adı için JOIN gerekir, onu Hafta 6'da göreceğiz.",
+   tasks:["Toplam net ciroyu hesapla. Referans rakamla aynı mı?","Ürün bazında net ciro, büyükten küçüğe.","Müşteri bazında sipariş sayısı (`COUNT(DISTINCT order_id)`).","İndirim oranına göre ortalama adet."],
+   not:"Altın kural: SQL'deki toplam ciro Excel ve Pandas ile aynı olmalı.",
+   teslim:"`sql/02_ozet.sql` + referans karşılaştırması."},
+  {t:"HAVING ve tarih fonksiyonları", g:"Gruplara koşul koymak ve aylık analiz yapmak.", tools:["mysql"],
+   plan:[["0-15","Konu"],["15-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"`WHERE` gruplamadan önce satırları süzer, `HAVING` gruplamadan sonra grupları süzer. MySQL tarih fonksiyonları: `MONTH(order_date)`, `YEAR()`, `DATE_FORMAT(order_date, '%Y-%m')`.",
+   tasks:["Ay bazında net ciro (`DATE_FORMAT`).","Yıllık cirosu 50.000 TL'yi geçen ürünler (`HAVING`).","En az 30 farklı siparişi olan müşteriler.","WHERE ile HAVING farkını kendi örneğinle açıkla."],
+   senaryo:"Bu soru mülakatlarda çok sorulur: \"WHERE ile HAVING arasındaki fark nedir?\" Cevabını 2 cümleyle hazırla.",
+   teslim:"`sql/03_having_tarih.sql` + mülakat cevabı."},
+  {t:"Tekrar ve 15 sorgu", g:"Haftanın konularını bakmadan uygulamak.", tools:["mysql","git"],
+   plan:[["0-60","15 sorgu, notlara bakmadan"],["60-80","Kontrol"],["80-90","GitHub"]],
+   konu:"Bugün yeni konu yok. Amaç: hangi konuyu gerçekten öğrendiğini, hangisinde hâlâ bakmaya ihtiyacın olduğunu görmek.",
+   tasks:["Claude'dan 15 karışık soru iste, her birini notlara bakmadan çöz.","Takıldıklarını işaretle.","Doğru cevapları Claude ile kontrol et.","`sql/` klasörünü GitHub'a push et."],
+   teslim:"15 sorgu + takıldığın konuların listesi."},
+  FLEX(["Hafta 5'te takıldığın SQL konusunu tekrar et","Kısa İngilizce mülakat pratiği (Claude ile)"])
+ ]},
+ {title:"Hafta 6", stage:"sql", konu:"SQL: JOIN, CASE WHEN, CTE, window functions", days:[
+  {t:"INNER JOIN", g:"Satış ve ürün tablolarını birleştirmek.", tools:["mysql"],
+   plan:[["0-20","Konu ve örnek"],["20-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"`FROM sales s JOIN products p ON s.product_id = p.product_id`. `s` ve `p` takma ad (alias). INNER JOIN sadece iki tarafta da eşleşen satırları getirir. Bu, Pandas'taki `merge`'in ve Excel'deki XLOOKUP'ın SQL karşılığı.",
+   tasks:["Ürün adıyla birlikte ürün bazında net ciro.","Kategori bazında net ciro ve brüt kâr (maliyet `products`'ta).","Toplam brüt kârı hesapla, referans rakamla karşılaştır.","En yüksek marjlı 5 ürün."],
+   teslim:"`sql/04_join.sql`"},
+  {t:"LEFT JOIN ve çoklu JOIN", g:"Eşleşmeyen kayıtları bulmak ve üç tabloyu birleştirmek.", tools:["mysql"],
+   plan:[["0-20","Konu"],["20-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"LEFT JOIN soldaki tüm satırları tutar, eşleşme yoksa sağ taraf `NULL` olur. \"Hiç satılmamış ürün var mı?\" sorusunun yolu: `products LEFT JOIN sales ... WHERE s.product_id IS NULL`. MySQL'de `FULL OUTER JOIN` yok, gerekirse iki sorgu `UNION` ile birleştirilir.",
+   tasks:["`sales` + `products` + `customers` üç tabloyu birleştir: şehir bazında ciro.","Segment bazında ciro.","Hiç satılmamış ürün var mı?","\"BILINMIYOR\" müşterili satırlar INNER ve LEFT JOIN'de nasıl davranıyor? Farkı göster."],
+   senaryo:"Mülakat sorusu: \"INNER JOIN ile LEFT JOIN farkı nedir, hangisini ne zaman kullanırsın?\"",
+   teslim:"`sql/05_left_join.sql` + mülakat cevabı."},
+  {t:"CASE WHEN", g:"SQL içinde koşullu sınıflama yapmak.", tools:["mysql"],
+   plan:[["0-15","Konu"],["15-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"`CASE WHEN koşul THEN 'değer' WHEN ... ELSE 'diğer' END`. Excel'deki iç içe IF'in SQL karşılığı. `SUM(CASE WHEN ... THEN 1 ELSE 0 END)` ile koşullu sayım yaparsın.",
+   tasks:["İndirimi \"İndirimsiz / Düşük / Yüksek\" diye bantla, banda göre ciro ve marj.","Ürünleri fiyatına göre \"Ekonomik / Orta / Premium\" sınıfla.","Müşterileri yıllık cirolarına göre segmentle.","Her kategoride indirimli satış oranını hesapla."],
+   teslim:"`sql/06_case.sql`"},
+  {t:"Subquery ve CTE", g:"Çok adımlı sorguları okunur şekilde yazmak.", tools:["mysql"],
+   plan:[["0-20","Konu"],["20-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"Subquery: sorgu içinde sorgu. CTE: `WITH urun_ciro AS (SELECT ...) SELECT ... FROM urun_ciro;` Aynı işi yapar ama adım adım okunur. İş hayatında karmaşık sorgular hep CTE ile yazılır.",
+   tasks:["Ortalama ürün cirosunun üstündeki ürünler (subquery ile).","Aynı soruyu CTE ile yaz. Hangisi daha okunur?","CTE ile: önce ürün cirosu, sonra stokla birleştir, sonra stok gün sayısı.","Riskli ürünleri bul (stok gün sayısı < tedarik süresi)."],
+   teslim:"`sql/07_cte.sql`"},
+  {t:"Window functions", g:"Sıralama, kümülatif toplam ve ABC analizini SQL ile yapmak.", tools:["mysql"],
+   plan:[["0-20","Konu"],["20-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"Window function satırları gruplamadan, her satıra hesap ekler. `RANK() OVER (PARTITION BY category ORDER BY ciro DESC)` her kategoride sıra verir. `SUM(ciro) OVER (ORDER BY ciro DESC)` kümülatif toplam. `LAG(ciro) OVER (ORDER BY ay)` bir önceki ayın değeri.",
+   tasks:["Her kategoride ürünleri ciroya göre sırala.","Kümülatif ciro payını hesapla ve CTE + CASE WHEN ile ABC sınıfı ata.","ABC sonucunu Excel ve Pandas ile karşılaştır.","Aylık ciro ve bir önceki aya göre değişim (%) (`LAG`)."],
+   en:"Kelimeler: rank, partition, running total, month-over-month.",
+   teslim:"`sql/08_window.sql`"},
+  {t:"Kontrol ve mülakat soruları", g:"SQL aşamasını bitirmek ve bağımsız yazabildiğini göstermek.", tools:["mysql","git"],
+   plan:[["0-30","Bakmadan sorgu"],["30-60","Mülakat soruları"],["60-90","GitHub ve README"]],
+   konu:"SQL aşamasının hedefi: \"Her kategoride en çok satan 3 ürünü\" notlara bakmadan yazabilmek.",
+   tasks:["Her kategoride en çok satan 3 ürünü bakmadan yaz.","Mülakat soruları: WHERE vs HAVING, INNER vs LEFT JOIN, CTE ne işe yarar, RANK ile ROW_NUMBER farkı.","`sql/` klasörünü düzenle, dosyaları numaralı tut.","README'ye SQL bölümü ekle, push et."],
+   teslim:"GitHub'da SQL bölümü + 4 mülakat cevabı."},
+  FLEX(["Yılbaşı dönemi: tempo düşükse sorun değil","SQL'de takıldığın konuyu tekrar et"])
+ ]},
+ {title:"Hafta 7", stage:"pbi", konu:"Power BI: model, DAX, satış dashboard'u", days:[
+  {t:"Kurulum ve arayüz", g:"Power BI Desktop'u kurup veriyi yüklemek.", tools:["pbi"],
+   plan:[["0-20","Kurulum"],["20-35","Arayüz turu"],["35-80","Görevler"],["80-90","Öz değerlendirme"]],
+   konu:"Üç görünüm: Report (sayfa tasarımı), Table/Data (veriye bakış), Model (ilişkiler). Veri iki yoldan gelebilir: temiz CSV'ler ya da MySQL bağlantısı. MySQL için connector kurman gerekebilir, sorun çıkarsa CSV ile devam et.",
+   tasks:["Microsoft Store'dan Power BI Desktop'u kur.","Get Data → MySQL database dene. Olmazsa Text/CSV ile temiz CSV'leri yükle.","Dört tabloyu yükle, Table görünümünde satır sayılarını kontrol et.","Dosyayı `powerbi/satis_stok.pbix` olarak kaydet."],
+   teslim:"Verinin yüklendiği .pbix dosyası."},
+  {t:"Power Query", g:"Veriyi Power BI içinde kontrol edip dönüştürmek.", tools:["pbi"],
+   plan:[["0-15","Konu"],["15-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"Power Query = Excel'deki temizlik adımlarının kaydedilmiş hali. Her işlem Applied Steps listesine eklenir ve veri yenilenince tekrar çalışır. Temiz veriyle geldiğin için bugün asıl iş veri tiplerini doğrulamak.",
+   tasks:["Transform Data ile Power Query'yi aç.","Her sütunun veri tipini kontrol et (tarih, ondalık sayı, metin).","Hesaplama sütunu ekle: net ciro (Add Column → Custom Column).","Applied Steps listesini incele, her adımı açıklayabiliyor musun?"],
+   senaryo:"Temizliği Pandas'ta mı, SQL'de mi, Power Query'de mi yapmalı? Bir şirkette bu karar neye göre verilir?",
+   teslim:"Tipleri doğru, net ciro sütunlu model."},
+  {t:"Veri modeli", g:"Tablolar arası ilişkileri kurup tarih tablosu eklemek.", tools:["pbi"],
+   plan:[["0-20","Konu"],["20-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"Yıldız şema: ortada olay tablosu (`sales`), çevresinde tanım tabloları (`products`, `customers`, tarih). İlişki yönü tanım tablosundan olay tablosuna, birden-çoğa (1:*). Tarih tablosu: `Takvim = CALENDAR(DATE(2025,1,1), DATE(2025,12,31))`.",
+   tasks:["Model görünümünde `sales` → `products` ve `sales` → `customers` ilişkilerini kur.","Tarih tablosu oluştur, Ay ve Ay Adı sütunlarını ekle, `sales`'e bağla.","`inventory`'yi `products`'a bağla.","Model görünümünün ekran görüntüsünü al."],
+   en:"Kelimeler: star schema, fact table, dimension table, relationship.",
+   teslim:"Kurulmuş model + ekran görüntüsü."},
+  {t:"DAX ölçüleri", g:"Temel KPI'ları DAX ile yazmak.", tools:["pbi"],
+   plan:[["0-20","Konu"],["20-75","Görevler"],["75-90","Altın kural kontrolü"]],
+   konu:"Ölçü (measure) her bağlamda yeniden hesaplanan bir formül: kategori seçince o kategoriye göre değişir. Örnek: `Toplam Ciro = SUM(sales[net_ciro])`. Bölme için `DIVIDE(pay, payda)` kullan, sıfıra bölünmeyi kendisi halleder.",
+   tasks:["Ölçüler: Toplam Ciro, Toplam Maliyet, Brüt Kâr, Kâr Marjı %.","Sipariş Sayısı (`DISTINCTCOUNT`) ve Ortalama Sepet.","Kart görseliyle üç referans rakamı göster. Excel, Pandas, SQL ile aynı mı?","Hesaplama sütunu ile ölçü arasındaki farkı kendi cümlelerinle yaz."],
+   not:"Dört araçta da aynı rakam: bu projenin en güçlü mülakat cümlelerinden biri olacak.",
+   teslim:"Ölçüler + referans kontrolü."},
+  {t:"Satış dashboard'u", g:"Tek sayfalık satış dashboard'unu kurmak.", tools:["pbi"],
+   plan:[["0-10","Taslak çiz (kâğıda)"],["10-75","Görseller"],["75-90","Öz değerlendirme"]],
+   konu:"Yukarıdan aşağı oku: üstte KPI kartları, ortada trend, altta detay. Filtreler (slicer) solda ya da üstte. Bir sayfada en fazla 6-7 görsel.",
+   tasks:["4 KPI kartı: ciro, brüt kâr, marj, sipariş sayısı.","Aylık ciro çizgi grafiği.","Kategori bazında ciro çubuk grafiği ve en iyi 10 ürün tablosu.","Kategori ve şehir slicer'ları."],
+   teslim:"Satış dashboard'u."},
+  {t:"Tasarım ve hikâye", g:"Dashboard'u bir yöneticinin 30 saniyede okuyacağı hale getirmek.", tools:["pbi","git"],
+   plan:[["0-15","Konu"],["15-70","Düzeltmeler"],["70-90","GitHub"]],
+   konu:"Az renk, hizalı görseller, bulgu söyleyen başlıklar. Vurgu rengini sadece dikkat çekmek istediğin yerde kullan.",
+   tasks:["Görselleri hizala, tek bir renk paleti kullan.","Başlıkları bulgu cümlesine çevir.","Dashboard'un ekran görüntüsünü `reports/figures/`'a koy.","README'ye Power BI bölümünü ve ekran görüntüsünü ekle, push et."],
+   senaryo:"Bir yönetici bu sayfaya 30 saniye bakarsa hangi 2 şeyi hatırlamalı?",
+   teslim:"Düzenlenmiş dashboard + GitHub'da görsel."},
+  FLEX(["Power BI'da takıldığın yeri tekrar et","Staj başvurularını gözden geçir"])
+ ]},
+ {title:"Hafta 8", stage:"port", konu:"Stok sayfası ve portföy paketi · Kontrol noktası 2", days:[
+  {t:"Stok sayfası", g:"Power BI'a stok risk sayfasını eklemek.", tools:["pbi"],
+   plan:[["0-15","Konu"],["15-75","Görevler"],["75-90","Öz değerlendirme"]],
+   konu:"İkinci sayfa yönetimin \"neyi sipariş etmeliyim?\" sorusuna cevap verir. Stok gün sayısını DAX ölçüsü olarak yaz, riskli ürünleri koşullu biçimlendirmeyle göster.",
+   tasks:["Ölçüler: Ortalama Günlük Satış, Stok Gün Sayısı.","Ürün tablosu: stok, stok gün sayısı, tedarik süresi, risk.","Koşullu biçimlendirme ile riskli ürünleri vurgula.","Riskli ürün sayısını gösteren bir KPI kartı."],
+   teslim:"Stok sayfası."},
+  {t:"ABC Power BI'da · son kontrol", g:"ABC sınıfını modele eklemek ve dört aracı son kez karşılaştırmak.", tools:["pbi","python"],
+   plan:[["0-15","Konu"],["15-60","Görevler"],["60-90","Karşılaştırma tablosu"]],
+   konu:"ABC'yi DAX ile yazmak zor olabilir. Pratik yol: Pandas'ta ürettiğin ABC tablosunu Power BI'a ek tablo olarak yüklemek ve `products`'a bağlamak. İkisini de bilmek iyi bir mülakat cevabıdır.",
+   tasks:["ABC sonucunu Power BI'a yükle, `products`'a bağla.","Stok sayfasına ABC slicer'ı ekle: \"Riskli A ürünleri\".","Tablo yap: referans rakamlar × Excel / Pandas / SQL / Power BI.","Fark varsa nedenini bul ve not et."],
+   teslim:"4 araç karşılaştırma tablosu."},
+  {t:"GitHub son düzen", g:"Repoyu bir işe alımcının 3 dakikada anlayacağı hale getirmek.", tools:["git","vscode"],
+   plan:[["0-10","Konu"],["10-80","README final"],["80-90","Push"]],
+   konu:"Repo açıldığında README ekranda görünür. Üstte tek cümle özet ve ana görsel, sonra bulgular, sonra teknik detay.",
+   tasks:["Klasör yapısını düzenle, gereksiz dosyaları kaldır.","`requirements.txt` ekle (`pandas`, `matplotlib`, `openpyxl`, `numpy`).","README final: özet, dashboard görseli, 3-5 rakamlı bulgu, araçlar, nasıl çalıştırılır.","Repoyu bir arkadaşına aç, 3 dakikada ne anladığını sor."],
+   en:"README'nin özet bölümünü İngilizce de yaz.",
+   teslim:"Final repo."},
+  {t:"CV ve LinkedIn", g:"Projeyi CV ve LinkedIn'de doğru anlatmak.", tools:["linkedin","not"],
+   plan:[["0-30","CV maddeleri"],["30-60","LinkedIn proje girişi"],["60-90","Gönderi taslağı"]],
+   konu:"İyi bir proje maddesi: fiil + ne yaptın + hangi araçla + sonuç (rakam). Örnek kalıp: \"... analiz ederek ... tespit ettim; Excel, Python, SQL ve Power BI ile ... raporu hazırladım.\"",
+   tasks:["CV'ye 2-3 maddelik proje bölümü yaz.","LinkedIn'de Projeler bölümüne ekle, GitHub linkini koy.","Kısa bir LinkedIn gönderisi taslağı yaz: ne yaptın, ne öğrendin, 1 görsel.","Becerilere SQL, Python, Power BI, Excel ekle."],
+   teslim:"CV maddeleri + LinkedIn girişi + gönderi taslağı (Claude ile kontrol et)."},
+  {t:"Projeyi anlatma", g:"Projeyi 3 dakikada Türkçe ve İngilizce anlatabilmek.", tools:["not"],
+   plan:[["0-30","Türkçe anlatım"],["30-60","İngilizce anlatım"],["60-90","Kayıt ve izleme"]],
+   konu:"STAR yapısı: Durum (bir dağıtıcının satış ve stok verisi), Görev (karar destek analizi), Eylem (temizlik, ABC, SQL, dashboard), Sonuç (bulgular ve öneriler).",
+   tasks:["3 dakikalık Türkçe anlatımı yaz.","İngilizce versiyonunu B1 seviyesinde, kısa cümlelerle yaz.","Telefonla kendini kaydet, izle, bir kez daha kaydet.","Olası 10 soruya kısa cevap hazırla (neden bu yöntem, en zor kısım neydi, bir daha yapsan neyi farklı yapardın...)."],
+   teslim:"İki anlatım metni + 10 cevap."},
+  {t:"Sahte mülakat", g:"Claude ile İngilizce teknik mülakat provası.", tools:["not"],
+   plan:[["0-45","Mülakat"],["45-75","Geri bildirim"],["75-90","Eksik listesi"]],
+   konu:"Claude'a \"Bana veri analisti stajı için İngilizce mülakat yap\" de. Sorulara süre tutarak cevap ver.",
+   tasks:["5 davranışsal soru (kendini tanıt, staj deneyimi, takım çalışması...).","5 teknik soru (SQL, Excel, projen).","Geri bildirimi not al.","Eksik kalan 3 konuyu listele."],
+   teslim:"Geri bildirim notları + eksik listesi."},
+  FLEX(["Kontrol noktası 2: Bir işe alımcıya projeyi 3 dakikada anlatabilir misin?","Hafta 9-12 için karar: XYZ, safety stock, reorder point, EOQ"])
+ ]}
+];
+
+// ---- yardımcılar
+const esc = s => s.replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = s => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+const ALL = []; WEEKS.forEach((w,wi)=>w.days.forEach((d,di)=>ALL.push({...d, w:wi, di, n:wi*7+di+1})));
+const dateOf = n => { const d=new Date(START); d.setDate(d.getDate()+n-1); return d; };
+const dstr = d => `${d.getDate()} ${MON[d.getMonth()]}`;
+function todayN(){ const t=new Date(); t.setHours(0,0,0,0); return Math.floor((t-START)/86400000)+1; }
+
+let done = new Set();
+try { done = new Set(JSON.parse(localStorage.getItem("ep-done")||"[]")); } catch(e){}
+function save(){ try { localStorage.setItem("ep-done", JSON.stringify([...done])); } catch(e){} }
+
+let cur = 1, view = "plan";
+
+function renderSide(){
+  const tn = todayN();
+  document.getElementById("weeks").innerHTML = WEEKS.map((w,wi)=>{
+    const s0 = dateOf(wi*7+1), s1 = dateOf(wi*7+7);
+    const [sl, sc] = STAGE[w.stage];
+    return `<div class="week"><div class="wh"><span class="wt">${w.title}</span><span class="wd">${dstr(s0)} – ${dstr(s1)}</span></div>
+      <div style="font-size:12.5px;color:var(--body3);margin-top:3px">${esc(w.konu)}</div>
+      <div class="days">${w.days.map((d,di)=>{const n=wi*7+di+1, dt=dateOf(n);
+        const cls=["day", d.flex?"flex":"", n===cur&&view==="plan"?"sel":"", done.has(n)?"done":"", n===tn?"today":""].join(" ");
+        return `<button class="${cls}" data-n="${n}" title="Gün ${n}: ${esc(d.t)}"><b>${n}</b><span>${DAYN[dt.getDay()===0?6:dt.getDay()-1]}</span></button>`}).join("")}</div></div>`;
+  }).join("");
+  document.querySelectorAll(".day").forEach(b=>b.onclick=()=>go(+b.dataset.n));
+  const work = ALL.filter(d=>!d.flex).length, dn = ALL.filter(d=>!d.flex && done.has(d.n)).length;
+  document.getElementById("pbar").style.width = (dn/work*100)+"%";
+  document.getElementById("ptxt").textContent = `${dn}/${work} çalışma günü`;
+}
+
+function toolTag(k){ const t=TOOLS[k]; return `<span class="tool" data-tool="${k}"><i style="background:${t.c}"></i>${t.name}</span>`; }
+
+function renderDay(){
+  const d = ALL[cur-1], w = WEEKS[d.w], dt = dateOf(cur), [sl, sc] = STAGE[d.flex?"flex":w.stage];
+  const tn = todayN(), rel = cur===tn ? " · Bugün" : "";
+  const p = document.getElementById("panel");
+  p.innerHTML = `
+    <div class="kick">${w.title} · Gün ${cur} · ${dstr(dt)} ${DAYN[dt.getDay()===0?6:dt.getDay()-1]}${rel} <span class="wtag" style="background:${sc};margin-left:6px">${sl}</span></div>
+    <h2>${fmt(d.t)}</h2>
+    <p class="goal">${fmt(d.g)}</p>
+    <div class="row"><span style="font-size:12px;font-weight:600;color:var(--muted);margin-right:2px">KULLANACAĞIN PROGRAMLAR</span>${d.tools.map(toolTag).join("")}</div>
+    <div class="sec"><h3>90 dakikalık plan</h3><div class="plan">${d.plan.map(x=>`<div><b>${esc(x[0])}${/dk/.test(x[0])?"":" dk"}</b>${fmt(x[1])}</div>`).join("")}</div></div>
+    <div class="sec"><h3>Konu</h3><p style="margin:0">${fmt(d.konu)}</p>${d.araclar?`<p style="margin:8px 0 0"><b>Kullanacağın özellikler:</b> ${fmt(d.araclar)}</p>`:""}</div>
+    ${d.tasks&&d.tasks.length?`<div class="sec"><h3>Görevler</h3><ol class="tasks">${d.tasks.map(t=>`<li>${fmt(t)}</li>`).join("")}</ol></div>`:""}
+    ${d.not?`<div class="sec" style="border:0;padding-top:4px"><div class="note">${fmt(d.not)}</div></div>`:""}
+    ${d.senaryo?`<div class="sec"><h3>İşletme senaryosu</h3><p style="margin:0">${fmt(d.senaryo)}</p></div>`:""}
+    ${d.en?`<div class="sec"><h3>Teknik İngilizce</h3><div class="en">${fmt(d.en)}</div></div>`:""}
+    <div class="sec"><h3>Gün sonu teslimi</h3><p style="margin:0">${fmt(d.teslim)}</p></div>
+    <div class="foot">
+      <label class="check"><input type="checkbox" id="doneBox" ${done.has(cur)?"checked":""}> Bu günü tamamladım</label>
+      <div class="nav"><button class="btn" id="prev" ${cur===1?"disabled":""}>← Önceki</button><button class="btn" id="next" ${cur===ALL.length?"disabled":""}>Sonraki →</button></div>
+    </div>
+    <p style="font-size:12.5px;color:var(--muted);margin:14px 0 0">Çözümleri kendin bul. Takıldığında Claude'a görevi yaz ve önce ipucu iste. İşaretlerin sadece bu tarayıcıda saklanır.</p>`;
+  document.getElementById("doneBox").onchange = e => { e.target.checked?done.add(cur):done.delete(cur); save(); renderSide(); };
+  document.getElementById("prev").onclick = ()=>go(cur-1);
+  document.getElementById("next").onclick = ()=>go(cur+1);
+  p.querySelectorAll(".tool").forEach(t=>t.onclick=()=>showTools(t.dataset.tool));
+}
+
+function showTools(focus){
+  view="tools"; setTabs(); renderSide();
+  const order = ["excel","vscode","python","mysql","pbi","git","linkedin","not"];
+  document.getElementById("panel").innerHTML = `
+    <div class="kick">Başvuru</div><h2>Kullanacağın programlar</h2>
+    <p class="goal">Her aracın bu projedeki rolü, kurulum notu ve küçük bir ipucu.</p>
+    <div class="note" style="margin-bottom:14px">Veri akışı: CSV → Excel (keşif, temizlik) → Python/Pandas (otomasyon) → MySQL (sorgu) → Power BI (dashboard). Her aşamada toplam ciro aynı çıkmalı.</div>
+    <div class="tgrid">${order.map(k=>{const t=TOOLS[k]; const used=ALL.filter(d=>d.tools.includes(k)).map(d=>d.n);
+      return `<div class="tcard" id="t-${k}" style="${k===focus?"outline:2px solid "+t.c:""}"><h4><i style="background:${t.c}"></i>${t.name}</h4>
+      <p>${fmt(t.ne)}</p><p><span class="lbl">Kurulum:</span> ${fmt(t.kur)}</p><p><span class="lbl">İpucu:</span> ${fmt(t.ipucu)}</p>
+      <p style="color:var(--muted);font-size:12.5px">Kullanılan günler: ${used.length? used.slice(0,1)+"–"+used.slice(-1)+" ("+used.length+" gün)":"-"}</p></div>`}).join("")}</div>`;
+  if(focus){ const el=document.getElementById("t-"+focus); el && el.scrollIntoView({block:"nearest"}); }
+}
+
+function setTabs(){ document.getElementById("tabPlan").classList.toggle("on",view==="plan"); document.getElementById("tabTools").classList.toggle("on",view==="tools"); }
+
+function go(n){
+  n = Math.max(1, Math.min(ALL.length, n)); cur = n; view = "plan";
+  try { if(location.hash !== "#gun-"+n) history.replaceState(null,"","#gun-"+n); } catch(e){}
+  setTabs(); renderSide(); renderDay();
+  if (window.innerWidth < 860) document.getElementById("panel").scrollIntoView({behavior:"smooth"});
+}
+
+function fromHash(){
+  const m = /^#gun-(\d+)$/.exec(location.hash);
+  if (m) return +m[1];
+  if (location.hash === "#programlar") return -1;
+  const t = todayN(); return t>=1 && t<=ALL.length ? t : 1;
+}
+
+function setThemeIcon(){ document.getElementById("themeBtn").textContent = document.documentElement.getAttribute("data-theme")==="dark" ? "☀️" : "🌙"; }
+document.getElementById("themeBtn").onclick = ()=>{ const n = document.documentElement.getAttribute("data-theme")==="dark" ? "light" : "dark"; document.documentElement.setAttribute("data-theme", n); try{ localStorage.setItem("ep-theme", n); }catch(e){} setThemeIcon(); };
+setThemeIcon();
+document.getElementById("todayBtn").onclick = ()=>{ const t=todayN(); go(t>=1&&t<=ALL.length?t:1); };
+document.getElementById("tabPlan").onclick = ()=>go(cur);
+document.getElementById("tabTools").onclick = ()=>showTools();
+window.addEventListener("hashchange", ()=>{ const n=fromHash(); if(n===-1) showTools(); else if(n!==cur) go(n); });
+
+const first = fromHash(); if (first===-1) { renderSide(); showTools(); } else go(first);
+</script>
+</body>
+</html>
