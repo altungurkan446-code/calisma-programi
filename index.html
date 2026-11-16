@@ -92,6 +92,11 @@ ol.tasks li::before{content:counter(t);position:absolute;left:0;top:8px;width:24
 .tcard h4 i{width:10px;height:10px;border-radius:50%}
 .tcard p{margin:4px 0;font-size:13.5px;color:var(--body3)}
 .tcard .lbl{font-weight:600;color:var(--ink)}
+.ans{display:block;width:100%;margin-top:7px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--soft);color:var(--ink);font:inherit;font-size:14px;line-height:1.5;resize:vertical;min-height:40px}
+.ans:focus{outline:2px solid var(--accent);outline-offset:-1px;background:var(--card)}
+.ansbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:18px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--soft)}
+.ansbar .st{font-size:13px;color:var(--muted);flex:1;min-width:180px}
+.copybox{width:100%;margin-top:8px;font:12.5px/1.5 "JetBrains Mono",monospace}
 .legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--muted);margin:2px 0 12px}
 .legend span{display:inline-flex;align-items:center;gap:5px}
 .legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
@@ -514,20 +519,29 @@ function renderDay(){
     <div class="row"><span style="font-size:12px;font-weight:600;color:var(--muted);margin-right:2px">KULLANACAĞIN PROGRAMLAR</span>${d.tools.map(toolTag).join("")}</div>
     <div class="sec"><h3>90 dakikalık plan</h3><div class="plan">${d.plan.map(x=>`<div><b>${esc(x[0])}${/dk/.test(x[0])?"":" dk"}</b>${fmt(x[1])}</div>`).join("")}</div></div>
     <div class="sec"><h3>Konu</h3><p style="margin:0">${fmt(d.konu)}</p>${d.araclar?`<p style="margin:8px 0 0"><b>Kullanacağın özellikler:</b> ${fmt(d.araclar)}</p>`:""}</div>
-    ${d.tasks&&d.tasks.length?`<div class="sec"><h3>Görevler</h3><ol class="tasks">${d.tasks.map(t=>`<li>${fmt(t)}</li>`).join("")}</ol></div>`:""}
+    ${d.tasks&&d.tasks.length?`<div class="sec"><h3>Görevler</h3><ol class="tasks">${d.tasks.map((t,i)=>`<li>${fmt(t)}${d.flex?"":`<textarea class="ans" data-k="t${i}" rows="2" placeholder="Cevabın, nasıl bulduğun..."></textarea>`}</li>`).join("")}</ol></div>`:""}
     ${d.not?`<div class="sec" style="border:0;padding-top:4px"><div class="note">${fmt(d.not)}</div></div>`:""}
-    ${d.senaryo?`<div class="sec"><h3>İşletme senaryosu</h3><p style="margin:0">${fmt(d.senaryo)}</p></div>`:""}
-    ${d.en?`<div class="sec"><h3>Teknik İngilizce</h3><div class="en">${fmt(d.en)}</div></div>`:""}
-    <div class="sec"><h3>Gün sonu teslimi</h3><p style="margin:0">${fmt(d.teslim)}</p></div>
+    ${d.senaryo?`<div class="sec"><h3>İşletme senaryosu</h3><p style="margin:0">${fmt(d.senaryo)}</p>${d.flex?"":`<textarea class="ans" data-k="senaryo" rows="3" placeholder="Senaryo yorumun..."></textarea>`}</div>`:""}
+    ${d.en?`<div class="sec"><h3>Teknik İngilizce</h3><div class="en">${fmt(d.en)}</div>${d.flex?"":`<textarea class="ans" data-k="en" rows="2" placeholder="Your sentence..."></textarea>`}</div>`:""}
+    <div class="sec"><h3>Gün sonu teslimi</h3><p style="margin:0">${fmt(d.teslim)}</p>
+      <textarea class="ans" data-k="not" rows="3" placeholder="Öz değerlendirme, takıldığın yerler, Claude'a sorun..."></textarea>
+      <div class="ansbar">
+        <span class="st" id="ansSt">Cevapların bu cihazda otomatik saklanır.</span>
+        <button class="btn primary" id="saveBtn" style="display:none">Claude'a kaydet</button>
+        <button class="btn" id="copyBtn">Claude için kopyala</button>
+      </div>
+      <div id="copyWrap"></div>
+    </div>
     <div class="foot">
       <label class="check"><input type="checkbox" id="doneBox" ${done.has(cur)?"checked":""}> Bu günü tamamladım</label>
       <div class="nav"><button class="btn" id="prev" ${cur===1?"disabled":""}>← Önceki</button><button class="btn" id="next" ${cur===ALL.length?"disabled":""}>Sonraki →</button></div>
     </div>
-    <p style="font-size:12.5px;color:var(--muted);margin:14px 0 0">Çözümleri kendin bul. Takıldığında Claude'a görevi yaz ve önce ipucu iste. İşaretlerin sadece bu tarayıcıda saklanır.</p>`;
-  document.getElementById("doneBox").onchange = e => { e.target.checked?done.add(cur):done.delete(cur); save(); renderSide(); };
+    <p style="font-size:12.5px;color:var(--muted);margin:14px 0 0">Çözümleri kendin bul. Takıldığında önce ipucu iste. Claude'daki sayfada "Claude'a kaydet" cevaplarını ve işaretlerini saklar; GitHub sitesinde bunlar sadece bu tarayıcıda kalır, "Claude için kopyala" ile sohbete yapıştırırsın.</p>`;
+  document.getElementById("doneBox").onchange = e => { e.target.checked?done.add(cur):done.delete(cur); save(); pushProgress(); renderSide(); };
   document.getElementById("prev").onclick = ()=>go(cur-1);
   document.getElementById("next").onclick = ()=>go(cur+1);
   p.querySelectorAll(".tool").forEach(t=>t.onclick=()=>showTools(t.dataset.tool));
+  setupAnswers();
 }
 
 function showTools(focus){
@@ -545,6 +559,91 @@ function showTools(focus){
 }
 
 function setTabs(){ document.getElementById("tabPlan").classList.toggle("on",view==="plan"); document.getElementById("tabTools").classList.toggle("on",view==="tools"); }
+
+// ---- cevaplar
+let DB = null, writing = Promise.resolve();
+const draftKey = n => "ep-ans-" + n;
+function readDraft(n){ try { return JSON.parse(localStorage.getItem(draftKey(n))||"null"); } catch(e){ return null; } }
+function writeDraft(n, obj){ try { localStorage.setItem(draftKey(n), JSON.stringify(obj)); } catch(e){} }
+function collect(){ const a={}; document.querySelectorAll("#panel .ans").forEach(t=>{ a[t.dataset.k]=t.value; }); return a; }
+function fill(a){ if(!a) return; document.querySelectorAll("#panel .ans").forEach(t=>{ if(typeof a[t.dataset.k]==="string") t.value=a[t.dataset.k]; }); }
+function hasText(a){ return a && Object.values(a).some(v=>v && v.trim()); }
+function setSt(msg){ const el=document.getElementById("ansSt"); if(el) el.textContent=msg; }
+
+function setupAnswers(){
+  const n = cur, dr = readDraft(n);
+  if (dr) fill(dr.a);
+  document.querySelectorAll("#panel .ans").forEach(t=>t.addEventListener("input", ()=>{
+    writeDraft(n, {a:collect(), ts:Date.now(), saved:false});
+    setSt(DB ? "Kaydedilmemiş değişiklik var. Claude'un görmesi için kaydet." : "Bu cihazda saklandı.");
+  }));
+  document.getElementById("copyBtn").onclick = copyForClaude;
+  const sb = document.getElementById("saveBtn");
+  sb.onclick = saveToClaude;
+  if (DB) {
+    sb.style.display = "";
+    if (dr && dr.saved) setSt("Claude'a kaydedildi.");
+    DB.doc("answers/gun-" + n).get().then(snap=>{
+      if (n !== cur || !snap.exists) return;
+      const r = snap.data(), local = readDraft(n);
+      if (!local || (r.ts||0) > (local.ts||0)) { fill(r.answers); writeDraft(n,{a:r.answers, ts:r.ts||0, saved:true}); }
+      if (!local || local.saved || (r.ts||0) >= (local.ts||0)) setSt("Claude'a kaydedildi. Sohbette \"Gün " + n + "'i kontrol et\" yazman yeterli.");
+    }).catch(()=>{});
+  }
+}
+
+function saveToClaude(){
+  if (!DB) return;
+  const n = cur, d = ALL[n-1], a = collect();
+  if (!hasText(a)) { setSt("Önce en az bir cevap yaz."); return; }
+  const ts = Date.now();
+  const doc = { day:n, title:d.t, ts, savedAt:new Date(ts).toISOString(), answers:a,
+    tasks:(d.tasks||[]), senaryo:d.senaryo||"", en:d.en||"" };
+  setSt("Kaydediliyor...");
+  writing = writing.then(()=>DB.doc("answers/gun-" + n).set(doc)).then(()=>{
+    writeDraft(n,{a, ts, saved:true});
+    if (n===cur) setSt("Claude'a kaydedildi. Sohbette \"Gün " + n + "'i kontrol et\" yazman yeterli.");
+  }).catch(e=>{
+    if (n===cur) setSt(e && e.code==="invalid_argument" ? "Bu sayfada kaydetme iznin yok. Kopyala düğmesini kullan." : "Kaydedilemedi. Biraz sonra tekrar dene ya da kopyala düğmesini kullan.");
+  });
+}
+
+function buildMessage(){
+  const n = cur, d = ALL[n-1], a = collect();
+  let m = `Gün ${n} – ${d.t} cevaplarım:\n`;
+  (d.tasks||[]).forEach((t,i)=>{ m += `\nGörev ${i+1}: ${t.replace(/`/g,"")}\nCevabım: ${(a["t"+i]||"").trim() || "(boş)"}\n`; });
+  if (d.senaryo) m += `\nSenaryo: ${(a.senaryo||"").trim() || "(boş)"}\n`;
+  if (d.en) m += `\nİngilizce: ${(a.en||"").trim() || "(boş)"}\n`;
+  if ((a.not||"").trim()) m += `\nNotlarım: ${a.not.trim()}\n`;
+  m += `\nLütfen kontrol et. Yanlışım varsa önce ipucu ver.`;
+  return m;
+}
+
+function copyForClaude(){
+  const msg = buildMessage(), wrap = document.getElementById("copyWrap");
+  const fallback = ()=>{ wrap.innerHTML = `<textarea class="ans copybox" rows="8" readonly></textarea>`; const t=wrap.firstChild; t.value=msg; t.focus(); t.select(); setSt("Metni seçtim: Ctrl+C ile kopyala, sohbete yapıştır."); };
+  try {
+    navigator.clipboard.writeText(msg).then(()=>{ wrap.innerHTML=""; setSt("Kopyalandı. Claude ile sohbete yapıştır."); }, fallback);
+  } catch(e){ fallback(); }
+}
+
+function pushProgress(){
+  if (!DB) return;
+  const arr = [...done].sort((a,b)=>a-b);
+  writing = writing.then(()=>DB.doc("progress/state").set({done:arr, ts:Date.now()})).catch(()=>{});
+}
+
+(async()=>{
+  try { if (window.claude && typeof window.claude.use === "function") DB = await window.claude.use("db"); } catch(e){ DB = null; }
+  if (!DB) return;
+  try {
+    const snap = await DB.doc("progress/state").get();
+    if (snap.exists) { (snap.data().done||[]).forEach(x=>done.add(x)); save(); }
+    if (snap.exists ? (snap.data().done||[]).length !== done.size : done.size) pushProgress();
+  } catch(e){}
+  renderSide();
+  if (view === "plan" && document.getElementById("saveBtn")) setupAnswers();
+})();
 
 function go(n){
   n = Math.max(1, Math.min(ALL.length, n)); cur = n; view = "plan";
